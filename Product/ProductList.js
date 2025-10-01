@@ -1,0 +1,88 @@
+import mongoose, { Schema } from "mongoose";
+
+const ProductSchema = new mongoose.Schema({
+    productName: { type: String, required: true },
+    productSizes: [{ type: String, required: true }],
+    productBanner: String,
+    productBanner_public_id: String,
+    banner2: String,
+    banner2_public_id: String,
+    howToMakeBanner: String,
+    howToMakeBanner_public_id: String,
+
+    productBannerMobile: String,
+    productBannerMobile_public_id: String,
+    banner2Mobile: String,
+    banner2Mobile_public_id: String,
+    howToMakeBannerMobile: String,
+    howToMakeBannerMobile_public_id: String,
+
+    productImages: [String],
+    productImages_public_id: [String],
+    subproducts: [
+        {
+            subproductName: String,
+            subproductImg: String,
+            subproductImg_public_id: String,
+            description: String,
+            weight: String,
+        },
+    ],
+    recipes: [
+        {
+            recipeName: String,
+            steps: [String],
+            recipeMainImg: String,
+            recipeMainImg_public_id: String,
+            recipeSubImg: String,            // ✅ fix
+            recipeSubImg_public_id: String,  // ✅ fix
+        },
+    ],
+}, { timestamps: true });
+
+const Product = mongoose.model("Product", ProductSchema);
+
+export default Product;
+
+/* EXTRA SUB_PRODUCT HEADING */
+
+const extraHeadingSchema = mongoose.Schema(
+    {
+        productId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Product",
+            required: true,
+        },
+        subproductTitle: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+    },
+    { timestamps: true }
+);
+
+// ✅ Prevent duplicate title for the same productId
+extraHeadingSchema.index({ productId: 1, subproductTitle: 1 }, { unique: true });
+
+export const Heading = mongoose.model("extraHeading", extraHeadingSchema)
+
+/* EXTRA SUB_PRODUCT */
+const Extra = mongoose.Schema({
+    productId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Product", // link to Product schema
+        required: true,
+    },
+    extrasubproducts: [
+        {
+            subproductTitle: String,
+            subproductName: String,
+            subproductImg: String,
+            subproductImg_public_id: String,
+            description: String,
+            weight: String,
+        },
+    ],
+})
+export const SubProduct = mongoose.model("ExtraSubProduct", Extra);
