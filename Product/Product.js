@@ -48,6 +48,7 @@ productRoutes.post(
           ...sub,
           subproductImg: file ? file.path : null,
           subproductImg_public_id: file ? file.filename : null,
+          displayOrder: sub.displayOrder ? Number(sub.displayOrder) : i + 1,
         };
       });
 
@@ -133,7 +134,15 @@ productRoutes.post(
 // ➡️ Get all products
 productRoutes.get("/", async (req, res) => {
   try {
-    const products = await Product.find().sort({displayOrder:1});
+    const products = await Product.find();
+    products.forEach((p) => {
+      if (Array.isArray(p.subproducts)) {
+        p.subproducts.sort(
+          (a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0)
+        );
+      }
+    });
+    products.sort((a, b) => Number(a.displayOrder) - Number(b.displayOrder));
     res.json(products);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -241,6 +250,7 @@ productRoutes.put(
               subproductImg_public_id: file
                 ? file.filename
                 : product.subproducts[i]?.subproductImg_public_id,
+              displayOrder: sub.displayOrder ? Number(sub.displayOrder) : i + 1,
             };
           })
         );

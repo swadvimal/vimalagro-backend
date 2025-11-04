@@ -16,7 +16,7 @@ const ProductSchema = new mongoose.Schema({
     banner2Mobile_public_id: String,
     howToMakeBannerMobile: String,
     howToMakeBannerMobile_public_id: String,
-
+    displayOrder:String,
     productImages: [String],
     productImages_public_id: [String],
     subproducts: [
@@ -26,6 +26,7 @@ const ProductSchema = new mongoose.Schema({
             subproductImg_public_id: String,
             description: String,
             weight: String,
+            displayOrder:Number
         },
     ],
     recipes: [
