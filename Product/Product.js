@@ -134,15 +134,16 @@ productRoutes.post(
 // ➡️ Get all products
 productRoutes.get("/", async (req, res) => {
   try {
-    const products = await Product.find();
-    products.forEach((p) => {
-      if (Array.isArray(p.subproducts)) {
-        p.subproducts.sort(
-          (a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0)
-        );
-      }
-    });
-    products.sort((a, b) => Number(a.displayOrder) - Number(b.displayOrder));
+    const products = await Product.aggregate([
+      {
+        $addFields: {
+          subproducts: {
+            $sortArray: { input: "$subproducts", sortBy: { displayOrder: 1 } },
+          },
+        },
+      },
+      { $sort: { displayOrder: 1 } },
+    ]);
     res.json(products);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -250,7 +251,9 @@ productRoutes.put(
               subproductImg_public_id: file
                 ? file.filename
                 : product.subproducts[i]?.subproductImg_public_id,
-              displayOrder: sub.displayOrder ? Number(sub.displayOrder) : i + 1,
+              displayOrder: sub.displayOrder
+                ? Number(sub.displayOrder)
+                : product.subproducts[i]?.displayOrder || i + 1,
             };
           })
         );
