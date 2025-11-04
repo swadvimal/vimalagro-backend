@@ -92,7 +92,11 @@ categoryRoutes.get("/", async (req, res) => {
     const categories = await OurCategory.find().populate(
       "productId",
       "productName"
-    ).sort({ "category.0.displayOrder": 1 }); ;
+    );
+    categories.sort(
+  (a, b) =>
+    Number(a.category[0].displayOrder) - Number(b.category[0].displayOrder)
+);
     res.json(categories);
   } catch (err) {
     res.status(500).json({ error: err.message });
